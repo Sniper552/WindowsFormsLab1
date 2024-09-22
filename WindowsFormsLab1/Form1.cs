@@ -127,7 +127,7 @@ namespace WindowsFormsLab1
             txtRightBorder.Clear();
 
             // Заполнение тестовыми значениями
-            txtTerminals.Text = "a b"; // Пример терминалов
+            txtTerminals.Text = "a b"; 
             txtNonTerminals.Text = "S A"; // Пример нетерминалов
 
             // Заполнение правил без использования символа '|'
