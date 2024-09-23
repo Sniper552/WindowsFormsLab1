@@ -35,7 +35,10 @@ namespace WindowsFormsLab1
                         return;
                     }
                     var nonTerminal = parts[0].Trim();
-                    var productions = parts[1].Trim().Split('|').Select(p => p.Trim()).ToList();
+                    var productions = parts[1].Trim()
+                        .Split('|')
+                        .Select(p => p.Trim() == "lambda" ? "" : p.Trim())  // добавлено преобразование для lambda
+                        .ToList();
                     rules[nonTerminal] = productions;
                 }
 
@@ -102,6 +105,13 @@ namespace WindowsFormsLab1
                         foreach (string elem in grammar.P[symbol])
                         {
                             string temp = sequence.Substring(0, i) + elem + sequence.Substring(i + 1);
+
+                            // Учитываем случай с пустым производством (λ)
+                            if (elem == "")
+                            {
+                                temp = sequence.Substring(0, i) + sequence.Substring(i + 1);
+                            }
+
                             if (temp.Length <= rightBorder + 1)
                             {
                                 rules.Add(temp);
@@ -116,6 +126,7 @@ namespace WindowsFormsLab1
                 }
             }
         }
+
         private void btnTestValues_Click(object sender, EventArgs e)
         {
             // Очистить текстовые поля перед заполнением
@@ -127,7 +138,7 @@ namespace WindowsFormsLab1
             txtRightBorder.Clear();
 
             // Заполнение тестовыми значениями
-            txtTerminals.Text = "a b"; 
+            txtTerminals.Text = "a b";
             txtNonTerminals.Text = "S A"; // Пример нетерминалов
 
             // Заполнение правил без использования символа '|'
