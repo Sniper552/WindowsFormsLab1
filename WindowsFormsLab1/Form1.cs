@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Drawing;
 using System.Windows.Forms;
 
 namespace WindowsFormsLab1
@@ -78,8 +79,9 @@ namespace WindowsFormsLab1
 
         private void GenerateWords(int leftBorder, int rightBorder)
         {
-            // Очистка вывода
+            // Очистка вывода и списка цепочек
             txtOutput.Clear();
+            listBoxChains.Items.Clear();
 
             // Используем очередь, которая будет хранить кортежи (текущая последовательность, шаги генерации)
             List<(string Sequence, string Path)> rules = new List<(string, string)> { (grammar.S, grammar.S) };
@@ -132,9 +134,13 @@ namespace WindowsFormsLab1
                 {
                     // Добавляем в вывод шаги, как сформировалась последовательность
                     txtOutput.AppendText(path + Environment.NewLine);
+
+                    // Добавляем цепочку в список для выбора
+                    listBoxChains.Items.Add(path);
                 }
             }
         }
+
 
 
         private void btnTestValues_Click(object sender, EventArgs e)
@@ -164,6 +170,96 @@ namespace WindowsFormsLab1
             txtRightBorder.Text = "5"; // Пример максимальной длины
         }
 
+
+        private void DrawTree(Graphics g, TreeNode node, int x, int y, int xOffset, int yOffset)
+        {
+            // Рисуем текущий узел
+            DrawVertex(g, node.Data, x, y);
+
+            // Рекурсивно рисуем дочерние узлы
+            int childXOffset = xOffset / 2;
+            for (int i = 0; i < node.Children.Count; i++)
+            {
+                int childX = x;
+                if (node.Children.Count > 1)
+                {
+                    childX = x - xOffset + i * (xOffset / (node.Children.Count - 1));
+                }
+                int childY = y + yOffset;
+
+                // Линия от родителя к ребенку
+                g.DrawLine(Pens.Black, x, y, childX, childY);
+
+                // Рекурсивный вызов для рисования дочерних узлов
+                DrawTree(g, node.Children[i], childX, childY, xOffset / 2, yOffset);
+            }
+        }
+
+        private void DrawVertex(Graphics g, string data, int x, int y)
+        {
+            int radius = 20;
+            g.FillEllipse(Brushes.White, x - radius, y - radius, radius * 2, radius * 2);
+            g.DrawEllipse(Pens.Black, x - radius, y - radius, radius * 2, radius * 2);
+            g.DrawString(data, this.Font, Brushes.Black, x - radius / 2, y - radius / 2);
+        }
+
+        private TreeNode rootTree; // Для хранения корневого узла дерева
+
+        protected override void OnPaint(PaintEventArgs e)
+        {
+            base.OnPaint(e);
+
+            // Проверяем, есть ли дерево для отрисовки
+            if (rootTree != null)
+            {
+                Graphics g = e.Graphics;
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+                // Рисуем дерево с небольшим смещением вправо
+                DrawTree(g, rootTree, this.ClientSize.Width / 2 + 500, 50, 150, 75);
+            }
+        }
+
+
+        private void BtnBuildTree_Click(object sender, EventArgs e)
+        {
+            if (listBoxChains.SelectedItem == null)
+            {
+                MessageBox.Show("Выберите цепочку для построения дерева.");
+                return;
+            }
+
+            // Получаем выбранную цепочку
+            string selectedChain = listBoxChains.SelectedItem.ToString();
+
+            // Разделяем цепочку на этапы
+            string[] steps = selectedChain.Split(new[] { " -> " }, StringSplitOptions.None);
+
+            // Построение дерева на основе этапов
+            rootTree = BuildTree(steps);
+
+            // Запрос на перерисовку формы
+            Invalidate();
+        }
+
+
+        private TreeNode BuildTree(string[] steps)
+        {
+            TreeNode root = new TreeNode(steps[0]);
+            TreeNode current = root;
+
+            for (int i = 1; i < steps.Length; i++)
+            {
+                TreeNode child = new TreeNode(steps[i]);
+                current.Children.Add(child);
+                current = child;
+            }
+
+            return root;
+        }
+
+
+
     }
 
     public class Grammar
@@ -173,4 +269,17 @@ namespace WindowsFormsLab1
         public Dictionary<string, List<string>> P { get; set; }  // Правила продукции
         public string S { get; set; }  // Начальный символ
     }
+
+    public class TreeNode
+    {
+        public string Data { get; set; }
+        public List<TreeNode> Children { get; set; }
+
+        public TreeNode(string data, params TreeNode[] children)
+        {
+            Data = data;
+            Children = new List<TreeNode>(children);
+        }
+    }
+
 }

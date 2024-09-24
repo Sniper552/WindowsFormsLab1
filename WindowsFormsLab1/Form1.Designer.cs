@@ -44,6 +44,8 @@
             this.btnGenerate = new System.Windows.Forms.Button();
             this.label7 = new System.Windows.Forms.Label();
             this.btnTestValues = new System.Windows.Forms.Button();
+            this.listBoxChains = new System.Windows.Forms.ListBox();
+            this.btnBuildTree = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // txtTerminals
@@ -182,11 +184,31 @@
             this.btnTestValues.UseVisualStyleBackColor = true;
             this.btnTestValues.Click += new System.EventHandler(this.btnTestValues_Click);
             // 
+            // listBoxChains
+            // 
+            this.listBoxChains.FormattingEnabled = true;
+            this.listBoxChains.Location = new System.Drawing.Point(604, 365);
+            this.listBoxChains.Name = "listBoxChains";
+            this.listBoxChains.Size = new System.Drawing.Size(380, 212);
+            this.listBoxChains.TabIndex = 16;
+            // 
+            // btnBuildTree
+            // 
+            this.btnBuildTree.Location = new System.Drawing.Point(695, 336);
+            this.btnBuildTree.Name = "btnBuildTree";
+            this.btnBuildTree.Size = new System.Drawing.Size(115, 23);
+            this.btnBuildTree.TabIndex = 17;
+            this.btnBuildTree.Text = "Generate tree";
+            this.btnBuildTree.UseVisualStyleBackColor = true;
+            this.btnBuildTree.Click += new System.EventHandler(this.BtnBuildTree_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1054, 583);
+            this.Controls.Add(this.btnBuildTree);
+            this.Controls.Add(this.listBoxChains);
             this.Controls.Add(this.btnTestValues);
             this.Controls.Add(this.label7);
             this.Controls.Add(this.btnGenerate);
@@ -228,6 +250,8 @@
         private System.Windows.Forms.Button btnGenerate;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Button btnTestValues;
+        private System.Windows.Forms.ListBox listBoxChains;
+        private System.Windows.Forms.Button btnBuildTree;
     }
 }
 
