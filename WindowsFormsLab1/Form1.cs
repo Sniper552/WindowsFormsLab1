@@ -81,30 +81,35 @@ namespace WindowsFormsLab1
             // Очистка вывода
             txtOutput.Clear();
 
-            List<string> rules = new List<string> { grammar.S };
+            // Используем очередь, которая будет хранить кортежи (текущая последовательность, шаги генерации)
+            List<(string Sequence, string Path)> rules = new List<(string, string)> { (grammar.S, grammar.S) };
             HashSet<string> usedSeq = new HashSet<string>();
 
             while (rules.Count > 0)
             {
-                string sequence = rules.Last();
+                // Получаем последний элемент из очереди
+                var (sequence, path) = rules.Last();
                 rules.RemoveAt(rules.Count - 1);
 
+                // Если последовательность уже использовалась, продолжаем
                 if (usedSeq.Contains(sequence))
                 {
                     continue;
                 }
                 usedSeq.Add(sequence);
 
-                bool onlyTerm = true;
+                bool onlyTerm = true;  // Флаг для проверки, состоит ли последовательность только из терминалов
+
+                // Перебираем символы в текущей последовательности
                 for (int i = 0; i < sequence.Length; i++)
                 {
-                    string symbol = sequence[i].ToString();  // символ как строка
-                    if (grammar.VN.Contains(symbol))
+                    string symbol = sequence[i].ToString();  // Берем символ как строку
+                    if (grammar.VN.Contains(symbol))  // Если это нетерминал, заменяем его
                     {
                         onlyTerm = false;
                         foreach (string elem in grammar.P[symbol])
                         {
-                            string temp = sequence.Substring(0, i) + elem + sequence.Substring(i + 1);
+                            string temp = sequence.Substring(0, i) + elem + sequence.Substring(i + 1);  // Применяем правило
 
                             // Учитываем случай с пустым производством (λ)
                             if (elem == "")
@@ -112,20 +117,25 @@ namespace WindowsFormsLab1
                                 temp = sequence.Substring(0, i) + sequence.Substring(i + 1);
                             }
 
+                            // Если новая цепочка не длиннее максимального предела, добавляем её в очередь
                             if (temp.Length <= rightBorder + 1)
                             {
-                                rules.Add(temp);
+                                // Добавляем новую цепочку вместе с шагом трансформации
+                                rules.Add((temp, path + " -> " + temp));
                             }
                         }
                     }
                 }
 
+                // Если последовательность состоит только из терминалов и её длина в пределах границ, выводим результат
                 if (onlyTerm && sequence.Length >= leftBorder && sequence.Length <= rightBorder)
                 {
-                    txtOutput.AppendText(string.IsNullOrEmpty(sequence) ? "lam" + Environment.NewLine : sequence + Environment.NewLine);
+                    // Добавляем в вывод шаги, как сформировалась последовательность
+                    txtOutput.AppendText(path + Environment.NewLine);
                 }
             }
         }
+
 
         private void btnTestValues_Click(object sender, EventArgs e)
         {
